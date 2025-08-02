@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامج توزيع الكتب المدرسية</title>
+    
+    <!-- ملاحظة: عند الرفع على GitHub Pages، يجب أن يكون اسم هذا الملف index.html -->
+    
+    <!-- Google Fonts: Almarai & Tajawal (بدائل جيدة ومتاحة لخط المهند) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #333;
+            --header-color: #004085;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --font-family: 'Tajawal', 'Almarai', sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+        header h1 {
+            font-size: 2.5em;
+            color: var(--header-color);
+            margin: 0;
+        }
+        header p {
+            font-size: 1em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .tab-button {
+            padding: 12px 25px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background-color: #e9ecef;
+            font-size: 1.1em;
+            font-family: var(--font-family);
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .school-entry {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+            position: relative;
+        }
+        .school-entry .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 150px;
+        }
+        .school-entry label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .school-entry input, .school-entry select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: var(--font-family);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result-area {
+            flex-basis: 100%;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #eef7ff;
+            border: 1px dashed var(--primary-color);
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--header-color);
+            min-height: 50px;
+            text-align: center;
+        }
+        .result-area .carton-details {
+            font-size: 0.85em;
+            font-weight: normal;
+            color: #555;
+            margin-top: 10px;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .action-buttons button {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-family: var(--font-family);
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-add { background-color: var(--primary-color); color: white; }
+        .btn-calculate { background-color: var(--success-color); color: white; }
+        .btn-export { background-color: #1d6f42; color: white; }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            header h1 { font-size: 1.8em; }
+            .school-entry { flex-direction: column; align-items: stretch; }
+            .action-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>برنامج توزيع الكتب المدرسية</h1>
+            <p>تم الإنشاء والتطوير بواسطة حارث الغنبوصي تحت إشراف إدارة التربية والتعليم بجعلان</p>
+        </header>
+
+        <div class="tabs">
+            <!-- التعديل هنا: تم تمرير 'this' للدالة لتحديد الزر المضغوط -->
+            <button class="tab-button active" onclick="showTab('distribution', this)">حساب التوزيع</button>
+            <button class="tab-button" onclick="showTab('percentage', this)">حساب النسب</button>
+        </div>
+
+        <div id="distribution" class="tab-content active">
+            <div id="distribution-entries"></div>
+            <div class="action-buttons">
+                <button class="btn-add" onclick="addDistributionEntry()">إضافة مدرسة</button>
+                <button class="btn-calculate" onclick="calculateAllDistribution()">احسب الجميع</button>
+                <button class="btn-export" onclick="exportDistributionToExcel()">تصدير إلى Excel</button>
+            </div>
+        </div>
+
+        <div id="percentage" class="tab-content">
+            <div id="percentage-entries"></div>
+            <div class="action-buttons">
+                <button class="btn-add" onclick="addPercentageEntry()">إضافة مدرسة</button>
+                <button class="btn-calculate" onclick="calculateAllPercentage()">احسب الجميع</button>
+                <button class="btn-export" onclick="exportPercentageToExcel()">تصدير إلى Excel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            addDistributionEntry();
+            addPercentageEntry();
+        });
+
+        // التعديل هنا: الدالة تستقبل الزر المضغوط كمتغير 'element'
+        function showTab(tabId, element) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active'); // استخدام المتغير 'element' مباشرة
+        }
+
+        // --- Distribution Tab Logic ---
+        function addDistributionEntry() {
+            const container = document.getElementById('distribution-entries');
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'school-entry';
+            entryDiv.innerHTML = `
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+                <div class="input-group">
+                    <label>اسم المدرسة</label>
+                    <input type="text" class="school-name" placeholder="أدخل اسم المدرسة">
+                </div>
+                <div class="input-group">
+                    <label>اسم المادة الدراسية</label>
+                    <input type="text" class="subject-name" placeholder="أدخل اسم المادة">
+                </div>
+                <div class="input-group">
+                    <label>عدد الطلاب</label>
+                    <input type="number" class="student-count" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>عدد الكتب في الكرتون</label>
+                    <input type="number" class="carton-size" placeholder="0" min="1">
+                </div>
+                <div class="result-area">النتيجة ستظهر هنا...</div>
+            `;
+            container.appendChild(entryDiv);
+        }
+
+        function calculateAllDistribution() {
+            const entries = document.querySelectorAll('#distribution-entries .school-entry');
+            entries.forEach(entry => {
+                const students = parseInt(entry.querySelector('.student-count').value) || 0;
+                const cartonSize = parseInt(entry.querySelector('.carton-size').value) || 0;
+                const resultArea = entry.querySelector('.result-area');
+                
+                if (students <= 0 || cartonSize <= 0) {
+                    resultArea.innerHTML = `<span style="color: var(--danger-color);">الرجاء إدخال قيم صحيحة لعدد الطلاب والكتب في الكرتون.</span>`;
+                    return;
+                }
+
+                const fullCartons = Math.floor(students / cartonSize);
+                const remainder = students % cartonSize;
+                const halfCarton = cartonSize / 2;
+
+                let resultText = '';
+                if (remainder === 0) {
+                    resultText = `الكمية المطلوبة: <strong>${fullCartons}</strong> كرتون بالضبط.`;
+                } else if (remainder > halfCarton) {
+                    const cartonsNeeded = fullCartons + 1;
+                    const booksToRemove = cartonSize - remainder;
+                    resultText = `الكمية المطلوبة: <strong>${cartonsNeeded}</strong> كرتون، مع <strong>إزالة ${booksToRemove}</strong> كتاب.`;
+                } else {
+                    resultText = `الكمية المطلوبة: <strong>${fullCartons}</strong> كرتون، مع <strong>إضافة ${remainder}</strong> كتاب.`;
+                }
+
+                const quarter = Math.round(cartonSize * 0.25);
+                const half = Math.round(cartonSize * 0.5);
+                const threeQuarters = Math.round(cartonSize * 0.75);
+
+                resultArea.innerHTML = `
+                    ${resultText}
+                    <div class="carton-details">
+                        تفصيل الكرتون: ربع=${quarter} كتاب | نصف=${half} كتاب | ثلاثة أرباع=${threeQuarters} كتاب
+                    </div>
+                `;
+            });
+        }
+        
+        function exportDistributionToExcel() {
+            calculateAllDistribution();
+            const entries = document.querySelectorAll('#distribution-entries .school-entry');
+            const data = [];
+            const headers = ["اسم المدرسة", "اسم المادة", "عدد الطلاب", "عدد الكتب في الكرتون", "عدد الكراتين المطلوبة", "الكتب الزائدة/الناقصة"];
+            data.push(headers);
+
+            entries.forEach(entry => {
+                const schoolName = entry.querySelector('.school-name').value || 'N/A';
+                const subjectName = entry.querySelector('.subject-name').value || 'N/A';
+                const students = parseInt(entry.querySelector('.student-count').value) || 0;
+                const cartonSize = parseInt(entry.querySelector('.carton-size').value) || 0;
+
+                if (students > 0 && cartonSize > 0) {
+                    const fullCartons = Math.floor(students / cartonSize);
+                    const remainder = students % cartonSize;
+                    const halfCarton = cartonSize / 2;
+                    let requiredCartons = 0;
+                    let extraBooks = '';
+                    if (remainder === 0) {
+                        requiredCartons = fullCartons;
+                        extraBooks = "0";
+                    } else if (remainder > halfCarton) {
+                        requiredCartons = fullCartons + 1;
+                        extraBooks = `إزالة ${cartonSize - remainder}`;
+                    } else {
+                        requiredCartons = fullCartons;
+                        extraBooks = `إضافة ${remainder}`;
+                    }
+                    data.push([schoolName, subjectName, students, cartonSize, requiredCartons, extraBooks]);
+                }
+            });
+
+            if (data.length <= 1) {
+                alert("لا توجد بيانات صالحة للتصدير.");
+                return;
+            }
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "توزيع الكتب");
+            worksheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 25 }];
+            XLSX.writeFile(workbook, "تقرير_توزيع_الكتب.xlsx");
+        }
+
+        // --- Percentage Tab Logic ---
+        function addPercentageEntry() {
+            const container = document.getElementById('percentage-entries');
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'school-entry';
+            entryDiv.innerHTML = `
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+                <div class="input-group">
+                    <label>اسم المدرسة</label>
+                    <input type="text" class="school-name" placeholder="أدخل اسم المدرسة">
+                </div>
+                <div class="input-group">
+                    <label>عدد الطلاب الكلي</label>
+                    <input type="number" class="total-students" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>نسبة التوزيع (%)</label>
+                    <select class="percentage-select" onchange="toggleCustomPercentage(this)">
+                        <option value="35">35%</option>
+                        <option value="50">50%</option>
+                        <option value="75">75%</option>
+                        <option value="custom">نسبة مخصصة...</option>
+                    </select>
+                    <input type="number" class="custom-percentage" placeholder="أدخل النسبة" style="display:none; margin-top: 5px;">
+                </div>
+                <div class="result-area">النتيجة ستظهر هنا...</div>
+            `;
+            container.appendChild(entryDiv);
+        }
+
+        function toggleCustomPercentage(selectElement) {
+            const customInput = selectElement.nextElementSibling;
+            customInput.style.display = (selectElement.value === 'custom') ? 'block' : 'none';
+        }
+
+        function calculateAllPercentage() {
+            const entries = document.querySelectorAll('#percentage-entries .school-entry');
+            entries.forEach(entry => {
+                const totalStudents = parseInt(entry.querySelector('.total-students').value) || 0;
+                const select = entry.querySelector('.percentage-select');
+                let percentage = (select.value === 'custom') ? parseFloat(entry.querySelector('.custom-percentage').value) || 0 : parseFloat(select.value) || 0;
+                const resultArea = entry.querySelector('.result-area');
+                if (totalStudents <= 0 || percentage <= 0) {
+                    resultArea.innerHTML = `<span style="color: var(--danger-color);">الرجاء إدخال قيم صحيحة لعدد الطلاب والنسبة.</span>`;
+                    return;
+                }
+                const requiredBooks = Math.round(totalStudents * (percentage / 100));
+                resultArea.innerHTML = `عدد الكتب المطلوب توزيعها: <strong>${requiredBooks}</strong> كتاب.`;
+            });
+        }
+
+        function exportPercentageToExcel() {
+            calculateAllPercentage();
+            const entries = document.querySelectorAll('#percentage-entries .school-entry');
+            const data = [];
+            const headers = ["اسم المدرسة", "عدد الطلاب الكلي", "نسبة التوزيع (%)", "عدد الكتب المطلوبة"];
+            data.push(headers);
+            entries.forEach(entry => {
+                const schoolName = entry.querySelector('.school-name').value || 'N/A';
+                const totalStudents = parseInt(entry.querySelector('.total-students').value) || 0;
+                const select = entry.querySelector('.percentage-select');
+                let percentageVal = 0;
+                let percentageDisplay = '';
+                if (select.value === 'custom') {
+                    percentageVal = parseFloat(entry.querySelector('.custom-percentage').value) || 0;
+                    percentageDisplay = `${percentageVal}%`;
+                } else {
+                    percentageVal = parseFloat(select.value) || 0;
+                    percentageDisplay = `${percentageVal}%`;
+                }
+                if (totalStudents > 0 && percentageVal > 0) {
+                     const requiredBooks = Math.round(totalStudents * (percentageVal / 100));
+                     data.push([schoolName, totalStudents, percentageDisplay, requiredBooks]);
+                }
+            });
+            if (data.length <= 1) {
+                alert("لا توجد بيانات صالحة للتصدير.");
+                return;
+            }
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "حساب النسب");
+            worksheet['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 20 }];
+            XLSX.writeFile(workbook, "تقرير_حساب_النسب.xlsx");
+        }
+    </script>
+
+</body>
+</html>
