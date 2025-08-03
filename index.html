@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>برنامج توزيع الكتب المدرسية</title>
     
-    <!-- ملاحظة: عند الرفع على GitHub Pages، يجب أن يكون اسم هذا الملف index.html -->
-    
-    <!-- Google Fonts: Almarai & Tajawal (بدائل جيدة ومتاحة لخط المهند) -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
@@ -58,33 +56,6 @@
             color: #6c757d;
             margin-top: 5px;
         }
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-        .tab-button {
-            padding: 12px 25px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            background-color: #e9ecef;
-            font-size: 1.1em;
-            font-family: var(--font-family);
-            margin: 0 5px;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .tab-button.active {
-            background-color: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
         .school-entry {
             display: flex;
             flex-wrap: wrap;
@@ -107,7 +78,7 @@
             font-weight: bold;
             font-size: 0.9em;
         }
-        .school-entry input, .school-entry select {
+        .school-entry input {
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 5px;
@@ -126,8 +97,16 @@
             font-size: 1.1em;
             font-weight: bold;
             color: var(--header-color);
-            min-height: 50px;
+            min-height: 60px;
             text-align: center;
+        }
+        .result-area .calculation-base {
+            font-size: 0.9em;
+            font-weight: normal;
+            color: #495057;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ced4da;
+            padding-bottom: 10px;
         }
         .result-area .carton-details {
             font-size: 0.85em;
@@ -187,52 +166,26 @@
             <p>تم الإنشاء والتطوير بواسطة حارث الغنبوصي تحت إشراف إدارة التربية والتعليم بجعلان</p>
         </header>
 
-        <div class="tabs">
-            <!-- التعديل هنا: تم تمرير 'this' للدالة لتحديد الزر المضغوط -->
-            <button class="tab-button active" onclick="showTab('distribution', this)">حساب التوزيع</button>
-            <button class="tab-button" onclick="showTab('percentage', this)">حساب النسب</button>
-        </div>
-
-        <div id="distribution" class="tab-content active">
-            <div id="distribution-entries"></div>
-            <div class="action-buttons">
-                <button class="btn-add" onclick="addDistributionEntry()">إضافة مدرسة</button>
-                <button class="btn-calculate" onclick="calculateAllDistribution()">احسب الجميع</button>
-                <button class="btn-export" onclick="exportDistributionToExcel()">تصدير إلى Excel</button>
+        <div id="main-content">
+            <div id="school-entries-container">
+                <!-- Entries will be added here by JavaScript -->
             </div>
-        </div>
-
-        <div id="percentage" class="tab-content">
-            <div id="percentage-entries"></div>
             <div class="action-buttons">
-                <button class="btn-add" onclick="addPercentageEntry()">إضافة مدرسة</button>
-                <button class="btn-calculate" onclick="calculateAllPercentage()">احسب الجميع</button>
-                <button class="btn-export" onclick="exportPercentageToExcel()">تصدير إلى Excel</button>
+                <button class="btn-add" onclick="addSchoolEntry()">إضافة مدرسة</button>
+                <button class="btn-calculate" onclick="calculateAll()">احسب الجميع</button>
+                <button class="btn-export" onclick="exportToExcel()">تصدير إلى Excel</button>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            addDistributionEntry();
-            addPercentageEntry();
+            // Add one entry form when the page loads
+            addSchoolEntry();
         });
 
-        // التعديل هنا: الدالة تستقبل الزر المضغوط كمتغير 'element'
-        function showTab(tabId, element) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.classList.remove('active'));
-
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => button.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            element.classList.add('active'); // استخدام المتغير 'element' مباشرة
-        }
-
-        // --- Distribution Tab Logic ---
-        function addDistributionEntry() {
-            const container = document.getElementById('distribution-entries');
+        function addSchoolEntry() {
+            const container = document.getElementById('school-entries-container');
             const entryDiv = document.createElement('div');
             entryDiv.className = 'school-entry';
             entryDiv.innerHTML = `
@@ -246,8 +199,12 @@
                     <input type="text" class="subject-name" placeholder="أدخل اسم المادة">
                 </div>
                 <div class="input-group">
-                    <label>عدد الطلاب</label>
+                    <label>عدد الطلاب الإجمالي</label>
                     <input type="number" class="student-count" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>نسبة التوزيع (%)</label>
+                    <input type="number" class="distribution-percentage" value="100" min="0" max="100" placeholder="100">
                 </div>
                 <div class="input-group">
                     <label>عدد الكتب في الكرتون</label>
@@ -258,20 +215,25 @@
             container.appendChild(entryDiv);
         }
 
-        function calculateAllDistribution() {
-            const entries = document.querySelectorAll('#distribution-entries .school-entry');
+        function calculateAll() {
+            const entries = document.querySelectorAll('#school-entries-container .school-entry');
             entries.forEach(entry => {
-                const students = parseInt(entry.querySelector('.student-count').value) || 0;
+                const originalStudents = parseInt(entry.querySelector('.student-count').value) || 0;
+                const percentage = parseFloat(entry.querySelector('.distribution-percentage').value) || 100;
                 const cartonSize = parseInt(entry.querySelector('.carton-size').value) || 0;
                 const resultArea = entry.querySelector('.result-area');
-                
-                if (students <= 0 || cartonSize <= 0) {
-                    resultArea.innerHTML = `<span style="color: var(--danger-color);">الرجاء إدخال قيم صحيحة لعدد الطلاب والكتب في الكرتون.</span>`;
+
+                if (originalStudents <= 0 || cartonSize <= 0) {
+                    resultArea.innerHTML = `<span style="color: var(--danger-color);">الرجاء إدخال قيم صحيحة لجميع الحقول.</span>`;
                     return;
                 }
 
-                const fullCartons = Math.floor(students / cartonSize);
-                const remainder = students % cartonSize;
+                // Calculate the effective number of students based on the percentage
+                const effectiveStudents = Math.round(originalStudents * (percentage / 100));
+
+                // Perform carton calculation based on effective students
+                const fullCartons = Math.floor(effectiveStudents / cartonSize);
+                const remainder = effectiveStudents % cartonSize;
                 const halfCarton = cartonSize / 2;
 
                 let resultText = '';
@@ -284,13 +246,17 @@
                 } else {
                     resultText = `الكمية المطلوبة: <strong>${fullCartons}</strong> كرتون، مع <strong>إضافة ${remainder}</strong> كتاب.`;
                 }
-
+                
+                // Carton details
                 const quarter = Math.round(cartonSize * 0.25);
                 const half = Math.round(cartonSize * 0.5);
                 const threeQuarters = Math.round(cartonSize * 0.75);
 
                 resultArea.innerHTML = `
-                    ${resultText}
+                    <div class="calculation-base">
+                        بناءً على نسبة ${percentage}%، يتم الحساب لـ <strong>${effectiveStudents}</strong> طالب.
+                    </div>
+                    <div>${resultText}</div>
                     <div class="carton-details">
                         تفصيل الكرتون: ربع=${quarter} كتاب | نصف=${half} كتاب | ثلاثة أرباع=${threeQuarters} كتاب
                     </div>
@@ -298,36 +264,58 @@
             });
         }
         
-        function exportDistributionToExcel() {
-            calculateAllDistribution();
-            const entries = document.querySelectorAll('#distribution-entries .school-entry');
+        function exportToExcel() {
+            calculateAll(); // Ensure data is calculated before export
+            const entries = document.querySelectorAll('#school-entries-container .school-entry');
             const data = [];
-            const headers = ["اسم المدرسة", "اسم المادة", "عدد الطلاب", "عدد الكتب في الكرتون", "عدد الكراتين المطلوبة", "الكتب الزائدة/الناقصة"];
+            const headers = [
+                "اسم المدرسة",
+                "اسم المادة",
+                "عدد الطلاب الإجمالي",
+                "نسبة التوزيع (%)",
+                "عدد الطلاب الفعلي",
+                "عدد الكتب في الكرتون",
+                "عدد الكراتين المطلوبة",
+                "الكتب الزائدة/الناقصة"
+            ];
             data.push(headers);
 
             entries.forEach(entry => {
                 const schoolName = entry.querySelector('.school-name').value || 'N/A';
                 const subjectName = entry.querySelector('.subject-name').value || 'N/A';
-                const students = parseInt(entry.querySelector('.student-count').value) || 0;
+                const originalStudents = parseInt(entry.querySelector('.student-count').value) || 0;
+                const percentage = parseFloat(entry.querySelector('.distribution-percentage').value) || 100;
                 const cartonSize = parseInt(entry.querySelector('.carton-size').value) || 0;
 
-                if (students > 0 && cartonSize > 0) {
-                    const fullCartons = Math.floor(students / cartonSize);
-                    const remainder = students % cartonSize;
-                    const halfCarton = cartonSize / 2;
+                if (originalStudents > 0 && cartonSize > 0) {
+                    const effectiveStudents = Math.round(originalStudents * (percentage / 100));
+                    const fullCartons = Math.floor(effectiveStudents / cartonSize);
+                    const remainder = effectiveStudents % cartonSize;
+                    
                     let requiredCartons = 0;
-                    let extraBooks = '';
+                    let extraBooksInfo = '';
+
                     if (remainder === 0) {
                         requiredCartons = fullCartons;
-                        extraBooks = "0";
-                    } else if (remainder > halfCarton) {
+                        extraBooksInfo = "0";
+                    } else if (remainder > cartonSize / 2) {
                         requiredCartons = fullCartons + 1;
-                        extraBooks = `إزالة ${cartonSize - remainder}`;
+                        extraBooksInfo = `إزالة ${cartonSize - remainder}`;
                     } else {
                         requiredCartons = fullCartons;
-                        extraBooks = `إضافة ${remainder}`;
+                        extraBooksInfo = `إضافة ${remainder}`;
                     }
-                    data.push([schoolName, subjectName, students, cartonSize, requiredCartons, extraBooks]);
+                    
+                    data.push([
+                        schoolName,
+                        subjectName,
+                        originalStudents,
+                        `${percentage}%`,
+                        effectiveStudents,
+                        cartonSize,
+                        requiredCartons,
+                        extraBooksInfo
+                    ]);
                 }
             });
 
@@ -338,95 +326,15 @@
 
             const worksheet = XLSX.utils.aoa_to_sheet(data);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "توزيع الكتب");
-            worksheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 25 }];
-            XLSX.writeFile(workbook, "تقرير_توزيع_الكتب.xlsx");
-        }
+            XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير التوزيع");
+            
+            // Set column widths for better readability
+            worksheet['!cols'] = [
+                { wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 18 },
+                { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 25 }
+            ];
 
-        // --- Percentage Tab Logic ---
-        function addPercentageEntry() {
-            const container = document.getElementById('percentage-entries');
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'school-entry';
-            entryDiv.innerHTML = `
-                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                <div class="input-group">
-                    <label>اسم المدرسة</label>
-                    <input type="text" class="school-name" placeholder="أدخل اسم المدرسة">
-                </div>
-                <div class="input-group">
-                    <label>عدد الطلاب الكلي</label>
-                    <input type="number" class="total-students" placeholder="0" min="0">
-                </div>
-                <div class="input-group">
-                    <label>نسبة التوزيع (%)</label>
-                    <select class="percentage-select" onchange="toggleCustomPercentage(this)">
-                        <option value="35">35%</option>
-                        <option value="50">50%</option>
-                        <option value="75">75%</option>
-                        <option value="custom">نسبة مخصصة...</option>
-                    </select>
-                    <input type="number" class="custom-percentage" placeholder="أدخل النسبة" style="display:none; margin-top: 5px;">
-                </div>
-                <div class="result-area">النتيجة ستظهر هنا...</div>
-            `;
-            container.appendChild(entryDiv);
-        }
-
-        function toggleCustomPercentage(selectElement) {
-            const customInput = selectElement.nextElementSibling;
-            customInput.style.display = (selectElement.value === 'custom') ? 'block' : 'none';
-        }
-
-        function calculateAllPercentage() {
-            const entries = document.querySelectorAll('#percentage-entries .school-entry');
-            entries.forEach(entry => {
-                const totalStudents = parseInt(entry.querySelector('.total-students').value) || 0;
-                const select = entry.querySelector('.percentage-select');
-                let percentage = (select.value === 'custom') ? parseFloat(entry.querySelector('.custom-percentage').value) || 0 : parseFloat(select.value) || 0;
-                const resultArea = entry.querySelector('.result-area');
-                if (totalStudents <= 0 || percentage <= 0) {
-                    resultArea.innerHTML = `<span style="color: var(--danger-color);">الرجاء إدخال قيم صحيحة لعدد الطلاب والنسبة.</span>`;
-                    return;
-                }
-                const requiredBooks = Math.round(totalStudents * (percentage / 100));
-                resultArea.innerHTML = `عدد الكتب المطلوب توزيعها: <strong>${requiredBooks}</strong> كتاب.`;
-            });
-        }
-
-        function exportPercentageToExcel() {
-            calculateAllPercentage();
-            const entries = document.querySelectorAll('#percentage-entries .school-entry');
-            const data = [];
-            const headers = ["اسم المدرسة", "عدد الطلاب الكلي", "نسبة التوزيع (%)", "عدد الكتب المطلوبة"];
-            data.push(headers);
-            entries.forEach(entry => {
-                const schoolName = entry.querySelector('.school-name').value || 'N/A';
-                const totalStudents = parseInt(entry.querySelector('.total-students').value) || 0;
-                const select = entry.querySelector('.percentage-select');
-                let percentageVal = 0;
-                let percentageDisplay = '';
-                if (select.value === 'custom') {
-                    percentageVal = parseFloat(entry.querySelector('.custom-percentage').value) || 0;
-                    percentageDisplay = `${percentageVal}%`;
-                } else {
-                    percentageVal = parseFloat(select.value) || 0;
-                    percentageDisplay = `${percentageVal}%`;
-                }
-                if (totalStudents > 0 && percentageVal > 0) {
-                     const requiredBooks = Math.round(totalStudents * (percentageVal / 100));
-                     data.push([schoolName, totalStudents, percentageDisplay, requiredBooks]);
-                }
-            });
-            if (data.length <= 1) {
-                alert("لا توجد بيانات صالحة للتصدير.");
-                return;
-            }
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "حساب النسب");
-            worksheet['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 20 }];
-            XLSX.writeFile(workbook, "تقرير_حساب_النسب.xlsx");
+            XLSX.writeFile(workbook, "تقرير_توزيع_الكتب_الموحد.xlsx");
         }
     </script>
 
