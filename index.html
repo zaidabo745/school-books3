@@ -33,45 +33,46 @@
         .school-container { background-color: var(--school-bg); border: 2px solid #b8daff; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
         
         .school-header, .class-header { display: block; margin-bottom: 15px; }
-        .school-header input, .class-header select { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
-        .header-actions { display: flex; gap: 10px; justify-content: flex-start; }
-
+        .name-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        /* Style change for responsive input */
+        .name-container input, .name-container select { flex-grow: 1; min-width: 0; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1.2em; font-weight: bold; }
+        
+        .remove-btn {
+            background: var(--danger-color); color: white; border: none;
+            width: 38px; height: 38px; border-radius: 50%;
+            cursor: pointer; font-weight: bold; font-size: 20px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; line-height: 1;
+        }
         .class-container { background-color: var(--class-bg); border: 1px solid #cfe2ff; border-radius: 6px; padding: 15px; margin-top: 15px; }
         .subject-entry { display: flex; flex-wrap: wrap; gap: 15px; padding: 15px; padding-top: 25px; border: 1px dashed #ced4da; border-radius: 8px; margin-top: 10px; align-items: flex-end; position: relative; background: var(--subject-bg); }
+        .subject-entry .remove-btn { width: 30px; height: 30px; font-size: 16px; position: absolute; top: 10px; left: 10px; }
         
         .input-group { display: flex; flex-direction: column; flex-grow: 1; min-width: 130px; }
         .input-group label { margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
         .input-group input { padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1em; width: 100%; box-sizing: border-box; }
         
         .result-area { flex-basis: 100%; margin-top: 15px; padding: 15px; background-color: #eef7ff; border: 1px dashed var(--primary-color); border-radius: 5px; font-weight: bold; min-height: 60px; text-align: center; }
-        .result-area .calculation-base { font-size: 0.9em; font-weight: normal; margin-bottom: 10px; border-bottom: 1px solid #ced4da; padding-bottom: 10px; }
-        .result-area .carton-details { font-size: 0.85em; font-weight: normal; margin-top: 10px; }
-
-        .btn-add-level, .remove-btn { padding: 8px 15px; font-size: 0.9em; border-radius: 5px; border: none; cursor: pointer; color: white; }
-        .btn-add-level { background-color: var(--primary-color); }
-        .remove-btn { background: var(--danger-color); font-weight: bold; }
-        .remove-subject-btn { position: absolute; top: 10px; left: 10px; padding: 5px 10px; }
         
-        /* New style for the "Add Subject" button container */
-        .add-subject-container { margin-top: 15px; }
-        .add-subject-container .btn-add-level { width: 100%; padding: 10px; font-size: 1em; }
+        .btn-add-level { background-color: var(--primary-color); color: white; padding: 10px; font-size: 1em; border-radius: 5px; border: none; cursor: pointer; width: 100%; }
         
-        .action-buttons { display: flex; flex-direction: column; gap: 15px; margin-top: 25px; }
-        .action-buttons button { padding: 12px 30px; font-size: 1.1em; border-radius: 5px; border: none; cursor: pointer; width: 100%; }
+        .top-action-buttons { display: flex; gap: 15px; margin-bottom: 20px; }
+        .top-action-buttons button { flex-grow: 1; padding: 12px; font-size: 1.1em; border-radius: 5px; border: none; cursor: pointer; }
+        
+        .main-action-buttons { display: flex; flex-direction: column; gap: 15px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .main-action-buttons button { padding: 12px 30px; font-size: 1.1em; border-radius: 5px; border: none; cursor: pointer; width: 100%; }
         .btn-add-school { background-color: var(--header-color); color: white; }
+        .btn-add-class { background-color: #007bff; color: white; }
         .btn-calculate { background-color: var(--success-color); color: white; }
         .btn-export { background-color: #1d6f42; color: white; }
 
-        /* Log Styles */
-        .log-entry { border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 15px; overflow: hidden; }
-        .log-header { padding: 15px; background-color: #f8f9fa; cursor: pointer; display: flex; flex-direction: column; gap: 5px; text-align: center; }
-        .log-header strong { font-size: 1.1em; }
-        .log-header:hover { background-color: #e9ecef; }
-        .log-details { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background-color: #fff; }
-        .log-entry.active .log-details { max-height: 1000px; padding: 15px; }
-        .log-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-        .log-table th, .log-table td { border: 1px solid var(--border-color); padding: 8px; text-align: right; }
-        .log-table th { background-color: #e9ecef; }
+        /* New Status Message Style */
+        #status-message {
+            padding: 12px; margin: 20px 0; border-radius: 5px;
+            text-align: center; font-weight: bold; display: none;
+        }
+        #status-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        #status-message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
@@ -79,7 +80,6 @@
     <div class="container">
         <header>
             <h1>برنامج توزيع الكتب المدرسية</h1>
-            <!-- Text changed as requested -->
             <p>تم الإنشاء والتطوير بواسطة حارث الغنبوصي</p>
         </header>
 
@@ -89,19 +89,22 @@
         </div>
 
         <div id="inputs-tab" class="tab-content active">
-            <div id="schools-container"></div>
-            <div class="action-buttons">
+            <!-- Button layout changed as requested -->
+            <div class="top-action-buttons">
                 <button class="btn-add-school" onclick="addSchool()">+ إضافة مدرسة جديدة</button>
+                <button class="btn-add-class" onclick="addClassToLastSchool()">+ إضافة صف للمدرسة الأخيرة</button>
             </div>
+            <div id="schools-container"></div>
         </div>
 
         <div id="log-tab" class="tab-content">
-            <div id="log-container">
-                <p>لا توجد عمليات مسجلة بعد. اضغط على "احسب الجميع" لتسجيل عملية.</p>
-            </div>
+            <p>لا توجد عمليات مسجلة بعد.</p>
         </div>
+        
+        <!-- Moved status message here -->
+        <div id="status-message"></div>
 
-        <div class="action-buttons" style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <div class="main-action-buttons">
             <button class="btn-calculate" onclick="calculateAll()">احسب الجميع</button>
             <button class="btn-export" onclick="exportToExcel()">تصدير إلى Excel</button>
         </div>
@@ -110,22 +113,9 @@
 <script>
 let calculationLog = [];
 
-document.addEventListener('DOMContentLoaded', () => {
-    addSchool();
-    document.querySelector('#log-container').addEventListener('click', e => {
-        const header = e.target.closest('.log-header');
-        if (header) {
-            header.parentElement.classList.toggle('active');
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded', () => addSchool());
 
-function showTab(tabId, element) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    element.classList.add('active');
-}
+function showTab(tabId, element) { /* ... same as before ... */ }
 
 function addSchool() {
     const container = document.getElementById('schools-container');
@@ -135,10 +125,9 @@ function addSchool() {
     schoolDiv.id = schoolId;
     schoolDiv.innerHTML = `
         <div class="school-header">
-            <input type="text" class="school-name" placeholder="أدخل اسم المدرسة">
-            <div class="header-actions">
-                <button class="btn-add-level" onclick="addClass('${schoolId}')">إضافة صف</button>
-                <button class="remove-btn" onclick="this.closest('.school-container').remove()">حذف المدرسة</button>
+            <div class="name-container">
+                <input type="text" class="school-name" placeholder="أدخل اسم المدرسة">
+                <button class="remove-btn" onclick="this.closest('.school-container').remove()">×</button>
             </div>
         </div>
         <div class="class-list"></div>
@@ -147,28 +136,35 @@ function addSchool() {
     addClass(schoolId);
 }
 
+// New helper function to add a class to the most recently added school
+function addClassToLastSchool() {
+    const allSchools = document.querySelectorAll('.school-container');
+    if (allSchools.length === 0) {
+        showStatus('الرجاء إضافة مدرسة أولاً.', 'error');
+        return;
+    }
+    const lastSchoolId = allSchools[allSchools.length - 1].id;
+    addClass(lastSchoolId);
+}
+
 function addClass(schoolId) {
     const schoolContainer = document.getElementById(schoolId);
+    if (!schoolContainer) return;
     const classList = schoolContainer.querySelector('.class-list');
     const classId = 'class-' + Date.now();
     const classDiv = document.createElement('div');
     classDiv.className = 'class-container';
     classDiv.id = classId;
-
     const classOptions = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس', 'السابع', 'الثامن', 'التاسع', 'العاشر', 'الحادي عشر', 'الثاني عشر']
         .map(c => `<option value="الصف ${c}">الصف ${c}</option>`).join('');
-
-    // --- HTML Structure Change is HERE ---
     classDiv.innerHTML = `
         <div class="class-header">
-            <select class="class-name">${classOptions}</select>
-            <div class="header-actions">
-                <!-- "Add Subject" button REMOVED from here -->
-                <button class="remove-btn" onclick="this.closest('.class-container').remove()">حذف الصف</button>
+            <div class="name-container">
+                <select class="class-name">${classOptions}</select>
+                <button class="remove-btn" onclick="this.closest('.class-container').remove()">×</button>
             </div>
         </div>
         <div class="subject-list"></div>
-        <!-- "Add Subject" button MOVED to here, at the bottom of the class container -->
         <div class="add-subject-container">
             <button class="btn-add-level" onclick="addSubject('${classId}')">+ إضافة مادة جديدة</button>
         </div>
@@ -177,42 +173,82 @@ function addClass(schoolId) {
     addSubject(classId);
 }
 
-function addSubject(classId) {
+function addSubject(classId) { /* ... same as before ... */ }
+function calculateSingleSubject(subject) { /* ... same as before ... */ }
+
+// --- calculateAll function modified to show status message ---
+function calculateAll() {
+    const logDetails = [];
+    document.querySelectorAll('.school-container').forEach(school => {
+        const schoolName = school.querySelector('.school-name').value || 'مدرسة غير مسماة';
+        school.querySelectorAll('.class-container').forEach(cls => {
+            const className = cls.querySelector('.class-name').value || 'صف غير مسمى';
+            cls.querySelectorAll('.subject-entry').forEach(subject => {
+                const result = calculateSingleSubject(subject);
+                if (result) logDetails.push({ schoolName, className, ...result });
+            });
+        });
+    });
+
+    if(logDetails.length > 0) {
+        const timestamp = new Date();
+        const summary = `تم حساب ${logDetails.length} مادة في ${logDetails.reduce((acc, curr) => acc.add(curr.className), new Set()).size} صفوف.`;
+        calculationLog.unshift({ timestamp, summary, details: logDetails });
+        renderLog();
+        // --- Replaced alert with status message ---
+        showStatus('تم الحساب بنجاح وحفظ النتائج في السجل.', 'success');
+    } else {
+        // --- Replaced alert with status message ---
+        showStatus('لم يتم العثور على بيانات صالحة للحساب.', 'error');
+    }
+}
+
+// --- New function to show status messages ---
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('status-message');
+    statusDiv.textContent = message;
+    statusDiv.className = `status-message ${type}`; // 'success' or 'error'
+    statusDiv.style.display = 'block';
+
+    setTimeout(() => {
+        statusDiv.style.display = 'none';
+    }, 4000); // Hide after 4 seconds
+}
+
+function renderLog() { /* ... same as before ... */ }
+function exportToExcel() { /* ... same as before ... */ }
+
+// --- Pasting in the unchanged functions for completeness ---
+showTab = (tabId, element) => {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    element.classList.add('active');
+}
+
+addSubject = (classId) => {
     const classContainer = document.getElementById(classId);
     const subjectList = classContainer.querySelector('.subject-list');
     const subjectDiv = document.createElement('div');
     subjectDiv.className = 'subject-entry';
     subjectDiv.innerHTML = `
-        <button class="remove-btn remove-subject-btn" onclick="this.closest('.subject-entry').remove()">×</button>
-        <div class="input-group">
-            <label>اسم المادة</label>
-            <input type="text" class="subject-name" placeholder="لغة عربية...">
-        </div>
-        <div class="input-group">
-            <label>عدد الطلاب</label>
-            <input type="number" class="student-count" placeholder="0" min="0">
-        </div>
-        <div class="input-group">
-            <label>نسبة التوزيع (%)</label>
-            <input type="number" class="distribution-percentage" value="100" min="0" max="100">
-        </div>
-        <div class="input-group">
-            <label>الكتب بالكرتون</label>
-            <input type="number" class="carton-size" placeholder="0" min="1">
-        </div>
+        <button class="remove-btn" onclick="this.closest('.subject-entry').remove()">×</button>
+        <div class="input-group"><label>اسم المادة</label><input type="text" class="subject-name" placeholder="لغة عربية..."></div>
+        <div class="input-group"><label>عدد الطلاب</label><input type="number" class="student-count" placeholder="0" min="0"></div>
+        <div class="input-group"><label>نسبة التوزيع (%)</label><input type="number" class="distribution-percentage" value="100" min="0" max="100"></div>
+        <div class="input-group"><label>الكتب بالكرتون</label><input type="number" class="carton-size" placeholder="0" min="1"></div>
         <div class="result-area">النتيجة ستظهر هنا...</div>
     `;
     subjectList.appendChild(subjectDiv);
-}
+};
 
-function calculateSingleSubject(subject) {
+calculateSingleSubject = (subject) => {
     const originalStudents = parseInt(subject.querySelector('.student-count').value) || 0;
     const percentage = parseFloat(subject.querySelector('.distribution-percentage').value) || 100;
     const cartonSize = parseInt(subject.querySelector('.carton-size').value) || 0;
     const resultArea = subject.querySelector('.result-area');
     if (originalStudents <= 0 || cartonSize <= 0) {
-        resultArea.innerHTML = `<span style="color: var(--danger-color);">قيم غير صالحة.</span>`;
-        return null;
+        resultArea.innerHTML = `<span style="color: var(--danger-color);">قيم غير صالحة.</span>`; return null;
     }
     const effectiveStudents = Math.round(originalStudents * (percentage / 100));
     const fullCartons = Math.floor(effectiveStudents / cartonSize);
@@ -231,62 +267,25 @@ function calculateSingleSubject(subject) {
     const quarter = Math.round(cartonSize * 0.25), half = Math.round(cartonSize * 0.5), threeQuarters = Math.round(cartonSize * 0.75);
     resultArea.innerHTML = `<div class="calculation-base">الحساب لـ <strong>${effectiveStudents}</strong> طالب (بنسبة ${percentage}%)</div><div>${resultText}</div><div class="carton-details">تفصيل الكرتون: ربع=${quarter} | نصف=${half} | ثلاثة أرباع=${threeQuarters}</div>`;
     return { subjectName: subject.querySelector('.subject-name').value || 'N/A', originalStudents, percentage: `${percentage}%`, effectiveStudents, cartonSize, requiredCartons, extraBooksInfo };
-}
+};
 
-function calculateAll() {
-    const logDetails = [];
-    document.querySelectorAll('.school-container').forEach(school => {
-        const schoolName = school.querySelector('.school-name').value || 'مدرسة غير مسماة';
-        school.querySelectorAll('.class-container').forEach(cls => {
-            const className = cls.querySelector('.class-name').value || 'صف غير مسمى';
-            cls.querySelectorAll('.subject-entry').forEach(subject => {
-                const result = calculateSingleSubject(subject);
-                if (result) logDetails.push({ schoolName, className, ...result });
-            });
-        });
-    });
-    if(logDetails.length > 0) {
-        const timestamp = new Date();
-        const summary = `تم حساب ${logDetails.length} مادة في ${logDetails.reduce((acc, curr) => acc.add(curr.className), new Set()).size} صفوف.`;
-        calculationLog.unshift({ timestamp, summary, details: logDetails });
-        renderLog();
-        alert("تم الحساب وحفظ النتائج في السجل.");
-    } else {
-        alert("لم يتم العثور على بيانات صالحة للحساب.");
-    }
-}
-
-function renderLog() {
-    const logContainer = document.getElementById('log-container');
+renderLog = () => {
+    const logContainer = document.querySelector('#log-tab');
     if (calculationLog.length === 0) {
-        logContainer.innerHTML = '<p>لا توجد عمليات مسجلة بعد.</p>';
-        return;
+        logContainer.innerHTML = '<p>لا توجد عمليات مسجلة بعد.</p>'; return;
     }
     logContainer.innerHTML = '';
     calculationLog.forEach((log, index) => {
         const logEntryDiv = document.createElement('div');
         logEntryDiv.className = 'log-entry';
         let tableRows = log.details.map(d => `<tr><td>${d.schoolName}</td><td>${d.className}</td><td>${d.subjectName}</td><td>${d.requiredCartons}</td><td>${d.extraBooksInfo}</td></tr>`).join('');
-        logEntryDiv.innerHTML = `
-            <div class="log-header">
-                <strong>عملية #${calculationLog.length - index}</strong>
-                <span>${log.summary}</span>
-                <small>${log.timestamp.toLocaleTimeString('ar-EG')} - ${log.timestamp.toLocaleDateString('ar-EG')}</small>
-            </div>
-            <div class="log-details">
-                <table class="log-table">
-                    <thead><tr><th>المدرسة</th><th>الصف</th><th>المادة</th><th>الكراتين</th><th>الزيادة/النقص</th></tr></thead>
-                    <tbody>${tableRows}</tbody>
-                </table>
-            </div>`;
+        logEntryDiv.innerHTML = `<div class="log-header"><strong>عملية #${calculationLog.length - index}</strong><span>${log.summary}</span><small>${log.timestamp.toLocaleTimeString('ar-EG')} - ${log.timestamp.toLocaleDateString('ar-EG')}</small></div><div class="log-details"><table class="log-table"><thead><tr><th>المدرسة</th><th>الصف</th><th>المادة</th><th>الكراتين</th><th>الزيادة/النقص</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
         logContainer.appendChild(logEntryDiv);
     });
-}
+};
 
-function exportToExcel() {
-    const data = [];
-    const headers = ["اسم المدرسة", "اسم الصف", "اسم المادة", "عدد الطلاب", "نسبة التوزيع", "الطلاب الفعليون", "الكتب بالكرتون", "الكراتين المطلوبة", "الكتب الزائدة/الناقصة"];
-    data.push(headers);
+exportToExcel = () => {
+    const data = [["اسم المدرسة", "اسم الصف", "اسم المادة", "عدد الطلاب", "نسبة التوزيع", "الطلاب الفعليون", "الكتب بالكرتون", "الكراتين المطلوبة", "الكتب الزائدة/الناقصة"]];
     let hasValidData = false;
     document.querySelectorAll('.school-container').forEach(school => {
         const schoolName = school.querySelector('.school-name').value || 'مدرسة غير مسماة';
@@ -302,15 +301,14 @@ function exportToExcel() {
         });
     });
     if (!hasValidData) {
-        alert("لا توجد بيانات صالحة للتصدير. الرجاء ملء الحقول أولاً.");
-        return;
+        showStatus("لا توجد بيانات صالحة للتصدير. الرجاء ملء الحقول أولاً.", "error"); return;
     }
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير التوزيع");
     worksheet['!cols'] = [{wch:25},{wch:15},{wch:20},{wch:12},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20}];
     XLSX.writeFile(workbook, "تقرير_التوزيع_المدارس.xlsx");
-}
+};
 </script>
 
 </body>
