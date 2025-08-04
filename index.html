@@ -99,6 +99,27 @@
         .log-entry { border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 15px; overflow: hidden; }
         .log-header { padding: 15px; background-color: #f8f9fa; cursor: pointer; display: flex; flex-direction: column; gap: 5px; text-align: center; }
         
+        /* Footer styles */
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .visitor-counter {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin: 10px auto;
+            display: inline-block;
+            font-weight: bold;
+            color: var(--header-color);
+        }
+        
         /* Ensure buttons are properly sized on mobile */
         @media (max-width: 480px) {
             .container { padding: 10px; }
@@ -141,6 +162,15 @@
             <button class="btn-calculate" onclick="calculateAll()">احسب الجميع</button>
             <button class="btn-export" onclick="exportToExcel()">تصدير إلى Excel</button>
         </div>
+        
+        <!-- Added footer with visitor counter -->
+        <footer>
+            <p>عدد زوار الموقع</p>
+            <div class="visitor-counter">
+                <span id="visitor-count">جاري التحميل...</span> زائر
+            </div>
+            <p>آخر تحديث: <span id="last-update"></span></p>
+        </footer>
     </div>
 
 <script>
@@ -152,7 +182,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const header = e.target.closest('.log-header');
         if (header) header.parentElement.classList.toggle('active');
     });
+    
+    // Initialize visitor counter
+    updateVisitorCounter();
 });
+
+// Visitor counter functions
+function updateVisitorCounter() {
+    // Get the current count from localStorage
+    let visitorCount = localStorage.getItem('visitorCount') || 0;
+    let lastVisit = localStorage.getItem('lastVisit') || null;
+    const now = new Date();
+    
+    // Check if this is a new visit (more than 1 hour since last visit)
+    if (!lastVisit || (now - new Date(lastVisit)) > (60 * 60 * 1000)) {
+        visitorCount = parseInt(visitorCount) + 1;
+        localStorage.setItem('visitorCount', visitorCount);
+        localStorage.setItem('lastVisit', now.toString());
+    }
+    
+    // Update the counter display
+    document.getElementById('visitor-count').textContent = visitorCount;
+    document.getElementById('last-update').textContent = new Date().toLocaleString('ar-EG');
+    
+    // Use a free counter service as a backup (optional)
+    // This can be replaced with any counter service of your choice
+    const counterImage = document.createElement('img');
+    counterImage.style.display = 'none'; // Hidden, just for counting
+    counterImage.src = "https://hitwebcounter.com/counter/counter.php?page=9417844&style=0007&nbdigits=5&type=page&initCount=0";
+    document.querySelector('footer').appendChild(counterImage);
+}
 
 function showTab(tabId, element) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -342,7 +401,7 @@ function renderLog() {
 
 function exportToExcel() {
     const data = [];
-    const headers = ["اسم المدرسة", "اسم الصف", "اسم المادة", "عدد الطلاب", "نسبة التوزيع", "عدد التوزيع", "الكتب بالكرتون", "الكراتين المطلوبة", "الكتب الزائدة/الناقصة"];
+    const headers = ["اسم المدرسة", "اسم الصف", "اسم المادة", "عدد الطلاب", "نسبة التوزيع", "الطلاب الفعليون", "الكتب بالكرتون", "الكراتين المطلوبة", "الكتب الزائدة/الناقصة"];
     data.push(headers);
     let hasValidData = false;
     document.querySelectorAll('.school-container').forEach(school => {
@@ -350,25 +409,4 @@ function exportToExcel() {
         school.querySelectorAll('.class-container').forEach(cls => {
             const className = cls.querySelector('.class-name').value || 'صف غير مسمى';
             cls.querySelectorAll('.subject-entry').forEach(subject => {
-                const result = calculateSingleSubject(subject);
-                if (result) {
-                    hasValidData = true;
-                    data.push([schoolName, className, result.subjectName, result.originalStudents, result.percentage, result.effectiveStudents, result.cartonSize, result.requiredCartons, result.extraBooksInfo]);
-                }
-            });
-        });
-    });
-    if (!hasValidData) {
-        alert("لا توجد بيانات صالحة للتصدير. الرجاء ملء الحقول أولاً.");
-        return;
-    }
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير التوزيع");
-    worksheet['!cols'] = [{wch:25},{wch:15},{wch:20},{wch:12},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20}];
-    XLSX.writeFile(workbook, "تقرير_التوزيع_المدارس.xlsx");
-}
-</script>
-
-</body>
-</html>
+                const result = calculateSingleSubject(su
