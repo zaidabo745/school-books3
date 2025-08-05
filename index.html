@@ -34,7 +34,6 @@
         
         .school-header, .class-header { display: block; margin-bottom: 15px; }
         .name-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        /* Style change for responsive input */
         .name-container input, .name-container select { flex-grow: 1; min-width: 0; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1.2em; font-weight: bold; }
         
         .remove-btn {
@@ -66,13 +65,35 @@
         .btn-calculate { background-color: var(--success-color); color: white; }
         .btn-export { background-color: #1d6f42; color: white; }
 
-        /* New Status Message Style */
         #status-message {
             padding: 12px; margin: 20px 0; border-radius: 5px;
             text-align: center; font-weight: bold; display: none;
         }
         #status-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         #status-message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* --- New, improved footer and counter styles --- */
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .visitor-counter {
+            background-color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 25px;
+            margin: 10px auto;
+            display: inline-block;
+            font-size: 1.1em;
+            color: var(--header-color);
+        }
+        .visitor-counter span {
+            font-weight: bold;
+            font-size: 1.4em;
+            margin: 0 5px;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +110,6 @@
         </div>
 
         <div id="inputs-tab" class="tab-content active">
-            <!-- Button layout changed as requested -->
             <div class="top-action-buttons">
                 <button class="btn-add-school" onclick="addSchool()">+ إضافة مدرسة جديدة</button>
                 <button class="btn-add-class" onclick="addClassToLastSchool()">+ إضافة صف للمدرسة الأخيرة</button>
@@ -98,24 +118,67 @@
         </div>
 
         <div id="log-tab" class="tab-content">
-            <p>لا توجد عمليات مسجلة بعد.</p>
+            <div id="log-container"><p>لا توجد عمليات مسجلة بعد.</p></div>
         </div>
         
-        <!-- Moved status message here -->
         <div id="status-message"></div>
 
         <div class="main-action-buttons">
             <button class="btn-calculate" onclick="calculateAll()">احسب الجميع</button>
             <button class="btn-export" onclick="exportToExcel()">تصدير إلى Excel</button>
         </div>
+        
+        <!-- --- Redesigned Footer --- -->
+        <footer>
+            <div class="visitor-counter">
+                عدد الزوار: <span id="visitor-count">...</span>
+            </div>
+        </footer>
     </div>
 
 <script>
 let calculationLog = [];
 
-document.addEventListener('DOMContentLoaded', () => addSchool());
+document.addEventListener('DOMContentLoaded', () => {
+    addSchool();
+    document.querySelector('#log-container').addEventListener('click', e => {
+        const header = e.target.closest('.log-header');
+        if (header) header.parentElement.classList.toggle('active');
+    });
+    // Initialize the new visitor counter
+    updateVisitorCounter();
+});
 
-function showTab(tabId, element) { /* ... same as before ... */ }
+// --- New and improved visitor counter function using an API ---
+function updateVisitorCounter() {
+    // This creates a unique counter for your specific project
+    const namespace = 'zaidabo745-school-project';
+    const key = 'visits';
+
+    fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+        .then(response => response.json())
+        .then(data => {
+            const visitorCountSpan = document.getElementById('visitor-count');
+            if (data.value) {
+                visitorCountSpan.textContent = data.value;
+            } else {
+                visitorCountSpan.textContent = 'غير متاح';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching visitor count:', error);
+            document.getElementById('visitor-count').textContent = 'خطأ';
+        });
+}
+
+
+// All other functions remain the same
+function showTab(tabId, element) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    element.classList.add('active');
+}
 
 function addSchool() {
     const container = document.getElementById('schools-container');
@@ -136,7 +199,6 @@ function addSchool() {
     addClass(schoolId);
 }
 
-// New helper function to add a class to the most recently added school
 function addClassToLastSchool() {
     const allSchools = document.querySelectorAll('.school-container');
     if (allSchools.length === 0) {
@@ -173,60 +235,7 @@ function addClass(schoolId) {
     addSubject(classId);
 }
 
-function addSubject(classId) { /* ... same as before ... */ }
-function calculateSingleSubject(subject) { /* ... same as before ... */ }
-
-// --- calculateAll function modified to show status message ---
-function calculateAll() {
-    const logDetails = [];
-    document.querySelectorAll('.school-container').forEach(school => {
-        const schoolName = school.querySelector('.school-name').value || 'مدرسة غير مسماة';
-        school.querySelectorAll('.class-container').forEach(cls => {
-            const className = cls.querySelector('.class-name').value || 'صف غير مسمى';
-            cls.querySelectorAll('.subject-entry').forEach(subject => {
-                const result = calculateSingleSubject(subject);
-                if (result) logDetails.push({ schoolName, className, ...result });
-            });
-        });
-    });
-
-    if(logDetails.length > 0) {
-        const timestamp = new Date();
-        const summary = `تم حساب ${logDetails.length} مادة في ${logDetails.reduce((acc, curr) => acc.add(curr.className), new Set()).size} صفوف.`;
-        calculationLog.unshift({ timestamp, summary, details: logDetails });
-        renderLog();
-        // --- Replaced alert with status message ---
-        showStatus('تم الحساب بنجاح وحفظ النتائج في السجل.', 'success');
-    } else {
-        // --- Replaced alert with status message ---
-        showStatus('لم يتم العثور على بيانات صالحة للحساب.', 'error');
-    }
-}
-
-// --- New function to show status messages ---
-function showStatus(message, type) {
-    const statusDiv = document.getElementById('status-message');
-    statusDiv.textContent = message;
-    statusDiv.className = `status-message ${type}`; // 'success' or 'error'
-    statusDiv.style.display = 'block';
-
-    setTimeout(() => {
-        statusDiv.style.display = 'none';
-    }, 4000); // Hide after 4 seconds
-}
-
-function renderLog() { /* ... same as before ... */ }
-function exportToExcel() { /* ... same as before ... */ }
-
-// --- Pasting in the unchanged functions for completeness ---
-showTab = (tabId, element) => {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    element.classList.add('active');
-}
-
-addSubject = (classId) => {
+function addSubject(classId) {
     const classContainer = document.getElementById(classId);
     const subjectList = classContainer.querySelector('.subject-list');
     const subjectDiv = document.createElement('div');
@@ -240,9 +249,9 @@ addSubject = (classId) => {
         <div class="result-area">النتيجة ستظهر هنا...</div>
     `;
     subjectList.appendChild(subjectDiv);
-};
+}
 
-calculateSingleSubject = (subject) => {
+function calculateSingleSubject(subject) {
     const originalStudents = parseInt(subject.querySelector('.student-count').value) || 0;
     const percentage = parseFloat(subject.querySelector('.distribution-percentage').value) || 100;
     const cartonSize = parseInt(subject.querySelector('.carton-size').value) || 0;
@@ -267,10 +276,45 @@ calculateSingleSubject = (subject) => {
     const quarter = Math.round(cartonSize * 0.25), half = Math.round(cartonSize * 0.5), threeQuarters = Math.round(cartonSize * 0.75);
     resultArea.innerHTML = `<div class="calculation-base">الحساب لـ <strong>${effectiveStudents}</strong> طالب (بنسبة ${percentage}%)</div><div>${resultText}</div><div class="carton-details">تفصيل الكرتون: ربع=${quarter} | نصف=${half} | ثلاثة أرباع=${threeQuarters}</div>`;
     return { subjectName: subject.querySelector('.subject-name').value || 'N/A', originalStudents, percentage: `${percentage}%`, effectiveStudents, cartonSize, requiredCartons, extraBooksInfo };
-};
+}
 
-renderLog = () => {
-    const logContainer = document.querySelector('#log-tab');
+function calculateAll() {
+    const logDetails = [];
+    document.querySelectorAll('.school-container').forEach(school => {
+        const schoolName = school.querySelector('.school-name').value || 'مدرسة غير مسماة';
+        school.querySelectorAll('.class-container').forEach(cls => {
+            const className = cls.querySelector('.class-name').value || 'صف غير مسمى';
+            cls.querySelectorAll('.subject-entry').forEach(subject => {
+                const result = calculateSingleSubject(subject);
+                if (result) logDetails.push({ schoolName, className, ...result });
+            });
+        });
+    });
+
+    if(logDetails.length > 0) {
+        const timestamp = new Date();
+        const summary = `تم حساب ${logDetails.length} مادة في ${logDetails.reduce((acc, curr) => acc.add(curr.className), new Set()).size} صفوف.`;
+        calculationLog.unshift({ timestamp, summary, details: logDetails });
+        renderLog();
+        showStatus('تم الحساب بنجاح وحفظ النتائج في السجل.', 'success');
+    } else {
+        showStatus('لم يتم العثور على بيانات صالحة للحساب.', 'error');
+    }
+}
+
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('status-message');
+    statusDiv.textContent = message;
+    statusDiv.className = `status-message ${type}`;
+    statusDiv.style.display = 'block';
+
+    setTimeout(() => {
+        statusDiv.style.display = 'none';
+    }, 4000);
+}
+
+function renderLog() {
+    const logContainer = document.getElementById('log-container');
     if (calculationLog.length === 0) {
         logContainer.innerHTML = '<p>لا توجد عمليات مسجلة بعد.</p>'; return;
     }
@@ -279,12 +323,23 @@ renderLog = () => {
         const logEntryDiv = document.createElement('div');
         logEntryDiv.className = 'log-entry';
         let tableRows = log.details.map(d => `<tr><td>${d.schoolName}</td><td>${d.className}</td><td>${d.subjectName}</td><td>${d.requiredCartons}</td><td>${d.extraBooksInfo}</td></tr>`).join('');
-        logEntryDiv.innerHTML = `<div class="log-header"><strong>عملية #${calculationLog.length - index}</strong><span>${log.summary}</span><small>${log.timestamp.toLocaleTimeString('ar-EG')} - ${log.timestamp.toLocaleDateString('ar-EG')}</small></div><div class="log-details"><table class="log-table"><thead><tr><th>المدرسة</th><th>الصف</th><th>المادة</th><th>الكراتين</th><th>الزيادة/النقص</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
+        logEntryDiv.innerHTML = `
+            <div class="log-header">
+                <strong>عملية #${calculationLog.length - index}</strong>
+                <span>${log.summary}</span>
+                <small>${log.timestamp.toLocaleTimeString('ar-EG')} - ${log.timestamp.toLocaleDateString('ar-EG')}</small>
+            </div>
+            <div class="log-details">
+                <table class="log-table">
+                    <thead><tr><th>المدرسة</th><th>الصف</th><th>المادة</th><th>الكراتين</th><th>الزيادة/النقص</th></tr></thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>`;
         logContainer.appendChild(logEntryDiv);
     });
-};
+}
 
-exportToExcel = () => {
+function exportToExcel() {
     const data = [["اسم المدرسة", "اسم الصف", "اسم المادة", "عدد الطلاب", "نسبة التوزيع", "الطلاب الفعليون", "الكتب بالكرتون", "الكراتين المطلوبة", "الكتب الزائدة/الناقصة"]];
     let hasValidData = false;
     document.querySelectorAll('.school-container').forEach(school => {
@@ -308,9 +363,8 @@ exportToExcel = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير التوزيع");
     worksheet['!cols'] = [{wch:25},{wch:15},{wch:20},{wch:12},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20}];
     XLSX.writeFile(workbook, "تقرير_التوزيع_المدارس.xlsx");
-};
+}
 </script>
-<script type="text/javascript" src="https://www.free-counters.org/count/icrp"></script><br>
- <a href='https://www.versicherungen.at/pferde-lebensversicherung/'>Lebensversicherung für Pferde</a> <script type='text/javascript' src='https://whomania.com/ctr?id=92e3f753a1ee20f215967a79e96fca92f1621f90'></script>
+
 </body>
-    </html>
+</html>
