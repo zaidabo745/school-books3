@@ -74,11 +74,44 @@
 
         /* --- New, improved footer and counter styles --- */
         footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-        }
+    text-align: center;
+    padding: 20px;
+    background-color: #f1f3f5;
+    border-top: 1px solid var(--border-color);
+}
+
+.visitor-counter {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 15px 25px;
+    margin: 10px auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-width: 300px;
+    width: 100%;
+}
+
+.visitor-counter p {
+    margin: 5px 0;
+    color: var(--header-color);
+    font-weight: bold;
+}
+
+#visitor-count {
+    font-size: 2em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+#last-update {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 5px;
+}
         .visitor-counter {
             background-color: var(--secondary-color);
             border: 1px solid var(--border-color);
